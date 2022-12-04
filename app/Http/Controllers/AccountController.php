@@ -9,11 +9,12 @@ class AccountController extends Controller
     //
     public function getUserProfile()
     {
-
+return "hi";
     }
 
     public function updateUserProfile()
     {
      return "hi";
+     
     }
 }
