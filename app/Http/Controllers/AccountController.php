@@ -14,6 +14,6 @@ class AccountController extends Controller
 
     public function updateUserProfile()
     {
-
+     return "hi";
     }
 }
