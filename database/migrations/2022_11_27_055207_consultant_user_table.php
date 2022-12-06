@@ -15,8 +15,13 @@ return new class extends Migration {
         Schema::create('consultants', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->double('rating');
+            $table->double('rating')->nullable();
+            $table->integer('skill');
+            $table->string('bio')->nullable();
+            $table->time('shiftStart');
+            $table->time('shiftEnd');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 
@@ -27,6 +32,6 @@ return new class extends Migration {
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('consultants');
     }
 };
