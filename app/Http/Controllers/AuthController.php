@@ -14,13 +14,11 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-
         $rules = [
             "firstName" => "required|string|min:3",
             "lastName" => "required|string|min:3",
             "email" => "required|string|unique:users|email",
             "password" => "required|string|min:6",
-            "role" => "required|integer|between:0,10"
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -35,7 +33,8 @@ class AuthController extends Controller
             "email" => $request->email,
             "password" => Hash::make($request->password),
             "address" => $request->address,
-            "image" => $imagePath
+            "image" => $imagePath,
+            "role"=>2
         ]);
         $token = $user->createToken("Very Secret Strong Token")->plainTextToken;
         $respone = ["message" => "user has been added successfully", "user" => $user, "token" => $token];
