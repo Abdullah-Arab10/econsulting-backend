@@ -10,6 +10,13 @@ class Consultant extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id'
+        'user_id',
+        'skill',
+        'bio',
+        'shiftStart',
+        'shiftEnd'
     ];
+    public function user(){
+        return $this->belongsTo('App\User');
+    }
 }
