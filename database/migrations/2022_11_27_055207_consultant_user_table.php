@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('user_id');
             $table->double('rating')->nullable();
             $table->integer('skill');
-            $table->string('bio')->nullable();
+            $table->longText('bio')->nullable();
             $table->time('shiftStart');
             $table->time('shiftEnd');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
