@@ -34,7 +34,7 @@ class AuthController extends Controller
             "password" => Hash::make($request->password),
             "address" => $request->address,
             "image" => $imagePath,
-            "role"=>2
+            "role" => 2
         ]);
         $token = $user->createToken("Very Secret Strong Token")->plainTextToken;
         $respone = ["message" => "user has been added successfully", "user" => $user, "token" => $token];
@@ -49,9 +49,9 @@ class AuthController extends Controller
             "lastName" => "required|string|min:3",
             "email" => "required|string|unique:users|email",
             "password" => "required|string|min:6",
-            "skill"=>"required",
-            "shiftStart"=>"required|date_format:H:i",
-            "shiftEnd"=>"required|date_format:H:i|after:shiftStart"
+            "skill" => "required",
+            "shiftStart" => "required|date_format:H:i",
+            "shiftEnd" => "required|date_format:H:i|after:shiftStart"
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -60,8 +60,8 @@ class AuthController extends Controller
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('images');
         };
-        $formatterdshiftStart=Carbon::createFromFormat('H:i',$request->shiftStart)->format('H:i:s');
-        $formatterdshiftEnd=Carbon::createFromFormat('H:i',$request->shiftEnd)->format('H:i:s');
+        $formatterdshiftStart = Carbon::createFromFormat('H:i', $request->shiftStart)->format('H:i:s');
+        $formatterdshiftEnd = Carbon::createFromFormat('H:i', $request->shiftEnd)->format('H:i:s');
         $user = User::create([
             "first_name" => $request->firstName,
             "last_name" => $request->lastName,
@@ -70,20 +70,20 @@ class AuthController extends Controller
             "role" => 1,
             "address" => $request->address,
             "image" => $imagePath,
-            "phone"=>$request->phone
+            "phone" => $request->phone
         ]);
-        $consultant=Consultant::create([
-            "user_id"=>$user->id,
-            "skill"=>$request->skill,
-            "bio"=>$request->bio,
-            "shiftStart"=>$formatterdshiftStart,
-            "shiftEnd"=>$formatterdshiftEnd
+        $consultant = Consultant::create([
+            "user_id" => $user->id,
+            "skill" => $request->skill,
+            "bio" => $request->bio,
+            "shiftStart" => $formatterdshiftStart,
+            "shiftEnd" => $formatterdshiftEnd
 
         ]);
-        $user->bio=$consultant->bio;
-        $user->skill=$consultant->skill;
-        $user->shiftStart=$consultant->shiftStart;
-        $user->shiftEnd=$consultant->shiftEnd;
+        $user->bio = $consultant->bio;
+        $user->skill = $consultant->skill;
+        $user->shiftStart = $consultant->shiftStart;
+        $user->shiftEnd = $consultant->shiftEnd;
         $token = $user->createToken("Very Secret Strong Token")->plainTextToken;
         $respone = ["message" => "user has been added successfully", "user" => $user, "token" => $token];
         return response()->json($respone, 200);
