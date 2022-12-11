@@ -24,3 +24,5 @@ Route::get('/consultant/consultants-list',[ConsultantController::class,'getAllCo
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('consultant-details/{id}' , [ConsultantController::class , 'getConsultantDetails']);

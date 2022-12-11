@@ -53,4 +53,7 @@ class User extends Authenticatable
     {
         return $this->hasOne('App\Consultant');
     }
+
+    
+    public $timestamps = false;
 }

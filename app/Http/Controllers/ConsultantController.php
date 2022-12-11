@@ -40,4 +40,15 @@ class ConsultantController extends Controller
             "civil_engineers" => $civilEngineers];
         return response()->json($consultantsList, 200);
     }
+
+   public function getConsultantDetails($id){
+        $consultant = User::query()
+            ->join('consultants', 'users.id', '=', 'consultants.user_id')
+            ->where('users.id',$id)
+            ->get();
+
+        return response()->json($consultant);
+
+
+    }
 }
