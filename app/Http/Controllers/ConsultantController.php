@@ -47,7 +47,7 @@ class ConsultantController extends Controller
             ->where('users.id',$id)
             ->get();
 
-        return response()->json($consultant);
+        return response()->json($consultant,200);
 
 
     }

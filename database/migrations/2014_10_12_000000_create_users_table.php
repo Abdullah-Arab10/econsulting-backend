@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->integer('role')->nullable();
             $table->string('address')->nullable();
             $table->string('phone')->nullable();
+            $table->integer('wallet')->nullable();
             $table->string('image')->nullable();
            // $table->timestamps();
         });
