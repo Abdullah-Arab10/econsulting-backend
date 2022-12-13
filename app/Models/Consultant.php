@@ -9,6 +9,10 @@ class Consultant extends Model
 {
     use HasFactory;
 
+    protected $hidden =[
+     'wallet'
+    ];
+
     protected $fillable = [
         'user_id',
         'skill',

@@ -18,10 +18,11 @@ return new class extends Migration {
             $table->double('rating')->nullable();
             $table->integer('skill');
             $table->longText('bio')->nullable();
+            $table->integer('wallet')->nullable();
             $table->time('shiftStart');
             $table->time('shiftEnd');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->timestamps();
+           // $table->timestamps();
         });
     }
 
