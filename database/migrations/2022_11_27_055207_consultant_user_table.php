@@ -21,7 +21,7 @@ return new class extends Migration {
             $table->time('shiftStart');
             $table->time('shiftEnd');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->timestamps();
+           // $table->timestamps();
         });
     }
 

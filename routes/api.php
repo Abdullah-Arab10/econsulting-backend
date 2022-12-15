@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -24,3 +25,7 @@ Route::get('/consultant/consultants-list',[ConsultantController::class,'getAllCo
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('consultant-details/{id}' , [ConsultantController::class , 'getConsultantDetails']);
+
+Route::post('admin/add-cash',[AdminController::class,'addMoneyToWallet']);

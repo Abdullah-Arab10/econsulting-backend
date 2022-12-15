@@ -9,6 +9,10 @@ class Consultant extends Model
 {
     use HasFactory;
 
+    protected $hidden =[
+     'wallet'
+    ];
+
     protected $fillable = [
         'user_id',
         'skill',
@@ -19,4 +23,6 @@ class Consultant extends Model
     public function user(){
         return $this->belongsTo('App\User');
     }
+
+    public $timestamps = false;
 }

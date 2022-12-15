@@ -14,5 +14,6 @@ class NormalUser extends Model
     protected $casts = [
         'favorite_consultants' => 'array'
     ];
+    public $timestamps = false;
     use HasFactory;
 }

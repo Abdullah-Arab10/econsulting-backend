@@ -33,6 +33,7 @@ class AuthController extends Controller
             "email" => $request->email,
             "password" => Hash::make($request->password),
             "address" => $request->address,
+            "wallet"=>0,
             "image" => $imagePath,
             "role" => 2
         ]);
@@ -57,9 +58,9 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('images');
-        };
+       if ($request->hasFile('image')) {
+          $imagePath = $request->file('image')->store('images');
+       };
         $formatterdshiftStart = Carbon::createFromFormat('H:i', $request->shiftStart)->format('H:i:s');
         $formatterdshiftEnd = Carbon::createFromFormat('H:i', $request->shiftEnd)->format('H:i:s');
         $user = User::create([
@@ -69,19 +70,21 @@ class AuthController extends Controller
             "password" => Hash::make($request->password),
             "role" => 1,
             "address" => $request->address,
-            "image" => $imagePath,
+           "image" => $imagePath,
             "phone" => $request->phone
         ]);
         $consultant = Consultant::create([
             "user_id" => $user->id,
             "skill" => $request->skill,
             "bio" => $request->bio,
+           
             "shiftStart" => $formatterdshiftStart,
             "shiftEnd" => $formatterdshiftEnd
 
         ]);
         $user->bio = $consultant->bio;
         $user->skill = $consultant->skill;
+        
         $user->shiftStart = $consultant->shiftStart;
         $user->shiftEnd = $consultant->shiftEnd;
         $token = $user->createToken("Very Secret Strong Token")->plainTextToken;
