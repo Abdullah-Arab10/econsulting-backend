@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConsultantController;
+use App\Http\Controllers\SearchUser;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -25,7 +27,6 @@ Route::get('/consultant/consultants-list',[ConsultantController::class,'getAllCo
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
 Route::get('consultant-details/{id}' , [ConsultantController::class , 'getConsultantDetails']);
-
 Route::post('admin/add-cash',[AdminController::class,'addMoneyToWallet']);
+Route::post('search',[SearchUser::class,'Search']);
