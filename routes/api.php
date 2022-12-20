@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConsultantController;
 use App\Http\Controllers\SearchUser;
-
+use App\Http\Controllers\AppointmentController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -18,12 +18,17 @@ use App\Http\Controllers\SearchUser;
 |
 */
 //Auth
-Route::post('/auth/register',[AuthController::class,'register']);
-Route::post('/auth/register-consultant',[AuthController::class,'registerAsConsultant']);
-Route::post('/auth/login',[AuthController::class,'login']);
-Route::post('/auth/test',[AuthController::class,'test']);
+Route::post('/auth/register', [AuthController::class, 'register']);
+Route::post('/auth/register-consultant', [AuthController::class, 'registerAsConsultant']);
+Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/auth/test', [AuthController::class, 'test']);
+Route::get('/auth/test2', [AuthController::class, 'test2']);
 //Consultant
-Route::get('/consultant/consultants-list',[ConsultantController::class,'getAllConsultant']);
+Route::get('/consultant/consultants-classified-list', [ConsultantController::class, 'getClassifiedConsultant']);
+Route::get('/consultant/consultants-list', [ConsultantController::class, 'getAllConsultants']);
+
+//Appointments
+Route::post('appointment/book', [AppointmentController::class, 'bookAppointment']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
