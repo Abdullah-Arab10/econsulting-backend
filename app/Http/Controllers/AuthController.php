@@ -24,8 +24,11 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
+        $imagePath = null;
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('images');
+            $storagePath = storage_path("app/$imagePath");
+            $imageBase64 = base64_encode(file_get_contents($storagePath));
         };
         $user = User::create([
             "first_name" => $request->firstName,
@@ -36,6 +39,7 @@ class AuthController extends Controller
             "image" => $imagePath,
             "role" => 2
         ]);
+        $user->image = $imageBase64;
         $token = $user->createToken("Very Secret Strong Token")->plainTextToken;
         $respone = ["message" => "user has been added successfully", "user" => $user, "token" => $token];
         return response()->json($respone, 200);
@@ -43,7 +47,6 @@ class AuthController extends Controller
 
     public function registerAsConsultant(Request $request)
     {
-
         $rules = [
             "firstName" => "required|string|min:3",
             "lastName" => "required|string|min:3",
@@ -57,8 +60,12 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
+        $imagePath = null;
+
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('images');
+            $storagePath = storage_path("app/$imagePath");
+            $imageBase64 = base64_encode(file_get_contents($storagePath));
         };
         $formatterdshiftStart = Carbon::createFromFormat('H:i', $request->shiftStart)->format('H:i:s');
         $formatterdshiftEnd = Carbon::createFromFormat('H:i', $request->shiftEnd)->format('H:i:s');
@@ -84,6 +91,7 @@ class AuthController extends Controller
         $user->skill = $consultant->skill;
         $user->shiftStart = $consultant->shiftStart;
         $user->shiftEnd = $consultant->shiftEnd;
+        $user->image = $imageBase64;
         $token = $user->createToken("Very Secret Strong Token")->plainTextToken;
         $respone = ["message" => "user has been added successfully", "user" => $user, "token" => $token];
         return response()->json($respone, 200);
@@ -109,5 +117,15 @@ class AuthController extends Controller
         $token = $user->createToken("Very Secret Strong Token")->plainTextToken;
         $respone = ["message" => "user has been added successfully", "user" => $user, "token" => $token];
         return response()->json($respone, 200);
+    }
+    public function test2()
+    {
+
+        $storagePath = storage_path('app\images\boy.png');
+
+        // dd($storagePath);
+        $imageBase64 = base64_encode(file_get_contents($storagePath));
+
+        return response()->json(["data" => $imageBase64]);
     }
 }

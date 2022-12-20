@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class NormalUser extends Model
 {
+
     protected $fillable = [
         'favorite_consultants',
         'user_id'

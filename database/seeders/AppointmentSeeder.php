@@ -2,11 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Consultant;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-
-class ConsultantSeeder extends Seeder
+use App\Models\Appointment;
+class AppointmentSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,6 +14,6 @@ class ConsultantSeeder extends Seeder
      */
     public function run()
     {
-        Consultant::factory(10)->create();
+        Appointment::factory(10)->create();
     }
 }
