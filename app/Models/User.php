@@ -36,6 +36,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'wallet',
         'created_at',
         'updated_at'
     ];
@@ -53,7 +54,9 @@ class User extends Authenticatable
     {
         return $this->hasOne('App\Consultant');
     }
-    public function appointments(){
+    public function appointments()
+    {
         return $this->hasMany('App\Appointment');
     }
+    public $timestamps = false;
 }

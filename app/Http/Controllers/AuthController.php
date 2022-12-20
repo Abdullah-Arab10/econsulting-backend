@@ -36,6 +36,7 @@ class AuthController extends Controller
             "email" => $request->email,
             "password" => Hash::make($request->password),
             "address" => $request->address,
+            "wallet"=>0,
             "image" => $imagePath,
             "role" => 2
         ]);
@@ -76,7 +77,7 @@ class AuthController extends Controller
             "password" => Hash::make($request->password),
             "role" => 1,
             "address" => $request->address,
-            "image" => $imagePath,
+           "image" => $imagePath,
             "phone" => $request->phone
         ]);
         $consultant = Consultant::create([

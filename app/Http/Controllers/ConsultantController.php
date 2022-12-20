@@ -40,4 +40,31 @@ class ConsultantController extends Controller
             "civil_engineers" => $civilEngineers];
         return response()->json($consultantsList, 200);
     }
+
+   public function getConsultantDetails($id){
+        $consultant = User::query()
+            ->join('consultants', 'users.id', '=', 'consultants.user_id')
+            ->where('users.id',$id)
+            ->get();
+
+        return response()->json($consultant,200);
+
+
+    }
+
+
+    public function Search(Request $request){
+        $request ->validate([
+            "username" =>"required|min:3"
+        ]);
+        $search = $request -> username;
+        $users= User::query()->join('consultants', 'users.id', '=', 'consultants.user_id')
+                ->where(function ($qs) use ($search){
+            $qs -> orWhere('first_name','like',"%{$search}%")
+                ->orWhere('last_name','like',"%{$search}%");
+              })->get();
+
+
+        return response() -> json($users,200);
+     }
 }
