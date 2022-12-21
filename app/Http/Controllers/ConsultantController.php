@@ -5,15 +5,25 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ConsultantController extends Controller
 {
     //
-    public function getAllConsultant()
+    public function getAllConsultants()
     {
         $consultants = User::query()
             ->join('consultants', 'users.id', '=', 'consultants.user_id')
             ->get();
+        foreach ($consultants as $consultant) {
+            if ($consultant->image) {
+                $imagePath = $consultant->image;
+                $imagePath = substr($imagePath, strpos($imagePath, "images"));
+                $path = Storage::path($imagePath);
+                $imageBase64 = base64_encode(file_get_contents($path));
+                $consultant->image = $imageBase64;
+            }
+        }
         $doctors = [];
         $dentists = [];
         $therapists = [];
@@ -37,34 +47,42 @@ class ConsultantController extends Controller
             "lawyers" => $lawyers,
             "economists" => $economists,
             "software_engineers" => $softwareEngineers,
-            "civil_engineers" => $civilEngineers];
+            "civil_engineers" => $civilEngineers
+        ];
         return response()->json($consultantsList, 200);
     }
 
-   public function getConsultantDetails($id){
+    public function getConsultantDetails($id)
+    {
         $consultant = User::query()
             ->join('consultants', 'users.id', '=', 'consultants.user_id')
-            ->where('users.id',$id)
+            ->where('users.id', $id)
             ->get();
-
-        return response()->json($consultant,200);
-
-
+        $consultant = $consultant[0];
+        if ($consultant->image) {
+            $imagePath = $consultant->image;
+            $imagePath = substr($imagePath, strpos($imagePath, "images"));
+            $path = Storage::path($imagePath);
+            $imageBase64 = base64_encode(file_get_contents($path));
+            $consultant->image = $imageBase64;
+        }
+        return response()->json($consultant, 200);
     }
 
 
-    public function Search(Request $request){
-        $request ->validate([
-            "username" =>"required|min:3"
+    public function Search(Request $request)
+    {
+        $request->validate([
+            "username" => "required|min:3"
         ]);
-        $search = $request -> username;
-        $users= User::query()->join('consultants', 'users.id', '=', 'consultants.user_id')
-                ->where(function ($qs) use ($search){
-            $qs -> orWhere('first_name','like',"%{$search}%")
-                ->orWhere('last_name','like',"%{$search}%");
-              })->get();
+        $search = $request->username;
+        $users = User::query()->join('consultants', 'users.id', '=', 'consultants.user_id')
+            ->where(function ($qs) use ($search) {
+                $qs->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%");
+            })->get();
 
 
-        return response() -> json($users,200);
-     }
+        return response()->json($users, 200);
+    }
 }
