@@ -15,15 +15,6 @@ class ConsultantController extends Controller
         $consultants = User::query()
             ->join('consultants', 'users.id', '=', 'consultants.user_id')
             ->get();
-        foreach ($consultants as $consultant) {
-            if ($consultant->image) {
-                $imagePath = $consultant->image;
-                $imagePath = substr($imagePath, strpos($imagePath, "images"));
-                $path = Storage::path($imagePath);
-                $imageBase64 = base64_encode(file_get_contents($path));
-                $consultant->image = $imageBase64;
-            }
-        }
         $doctors = [];
         $dentists = [];
         $therapists = [];
@@ -49,7 +40,7 @@ class ConsultantController extends Controller
             "software_engineers" => $softwareEngineers,
             "civil_engineers" => $civilEngineers
         ];
-        return response()->json($consultantsList, 200);
+        return response()->json(["data"=>$consultantsList], 200);
     }
 
     public function getConsultantDetails($id)
@@ -58,15 +49,7 @@ class ConsultantController extends Controller
             ->join('consultants', 'users.id', '=', 'consultants.user_id')
             ->where('users.id', $id)
             ->get();
-        $consultant = $consultant[0];
-        if ($consultant->image) {
-            $imagePath = $consultant->image;
-            $imagePath = substr($imagePath, strpos($imagePath, "images"));
-            $path = Storage::path($imagePath);
-            $imageBase64 = base64_encode(file_get_contents($path));
-            $consultant->image = $imageBase64;
-        }
-        return response()->json($consultant, 200);
+        return response()->json(["data" => $consultant], 200);
     }
 
 
