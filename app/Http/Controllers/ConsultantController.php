@@ -43,13 +43,14 @@ class ConsultantController extends Controller
             "software_engineers" => $softwareEngineers,
             "civil_engineers" => $civilEngineers
         ];
-        return response()->json(["data"=>$consultantsList], 200);
+        return response()->json(["data" => $consultantsList], 200);
     }
 
 
 
-   public function getConsultantDetails($id){
-    $consultant = User::query()
+    public function getConsultantDetails($id)
+    {
+        $consultant = User::query()
             ->join('consultants', 'users.id', '=', 'consultants.user_id')
             ->where('users.id', $id)
             ->get();
@@ -59,9 +60,10 @@ class ConsultantController extends Controller
 
 
 
-    public function Search(Request $request){
-        $request ->validate([
-            "username" =>"required|min:3"
+    public function Search(Request $request)
+    {
+        $request->validate([
+            "username" => "required|min:3"
         ]);
         $search = $request->username;
         $users = User::query()->join('consultants', 'users.id', '=', 'consultants.user_id')
@@ -72,5 +74,41 @@ class ConsultantController extends Controller
 
 
         return response()->json($users, 200);
+    }
+
+    public function rating(Request $request, $clintId, $consultantId)
+    {
+
+        $request->validate([
+            'rate' => 'required'
+        ]);
+        $user = Rating::where(function ($q) use ($clintId, $consultantId) {
+            $q->where('client_id', $clintId)
+                ->where('consultant_id', $consultantId);
+        })->first();
+
+        if ($user) {
+            $user->rate = $request->rate;
+            $user->save();
+        } else {
+            $rate = Rating::create([
+                "rate" => $request->rate,
+                "client_id" => $clintId,
+                "consultant_id" => $consultantId
+            ]);
+        }
+        $rate = $this->AvgRating($consultantId);
+        $avgrating = Consultant::where('consultants.id', $consultantId)->first();
+        $avgrating->AvgRating =  $rate;
+        $avgrating->save();
+        return response()->json(200);
+    }
+
+
+    public function AvgRating($id)
+    {
+        $avg = Rating::query()->where('ratings.consultant_id', $id)->avg('ratings.rate');
+        $formatted_number = round($avg, 2);
+        return $formatted_number;
     }
 }
