@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Consultant;
+use App\Models\Rating;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use PHPUnit\TextUI\XmlConfiguration\Constant;
 use Illuminate\Support\Facades\Storage;
 
 class ConsultantController extends Controller
@@ -43,9 +46,10 @@ class ConsultantController extends Controller
         return response()->json(["data"=>$consultantsList], 200);
     }
 
-    public function getConsultantDetails($id)
-    {
-        $consultant = User::query()
+
+
+   public function getConsultantDetails($id){
+    $consultant = User::query()
             ->join('consultants', 'users.id', '=', 'consultants.user_id')
             ->where('users.id', $id)
             ->get();
@@ -53,10 +57,11 @@ class ConsultantController extends Controller
     }
 
 
-    public function Search(Request $request)
-    {
-        $request->validate([
-            "username" => "required|min:3"
+
+
+    public function Search(Request $request){
+        $request ->validate([
+            "username" =>"required|min:3"
         ]);
         $search = $request->username;
         $users = User::query()->join('consultants', 'users.id', '=', 'consultants.user_id')
