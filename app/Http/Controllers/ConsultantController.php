@@ -8,15 +8,25 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\TextUI\XmlConfiguration\Constant;
+use Illuminate\Support\Facades\Storage;
 
 class ConsultantController extends Controller
 {
-    //
+  
     public function getAllConsultants()
     {
         $consultants = User::query()
             ->join('consultants', 'users.id', '=', 'consultants.user_id')
             ->get();
+        foreach ($consultants as $consultant) {
+            if ($consultant->image) {
+                $imagePath = $consultant->image;
+                $imagePath = substr($imagePath, strpos($imagePath, "images"));
+                $path = Storage::path($imagePath);
+                $imageBase64 = base64_encode(file_get_contents($path));
+                $consultant->image = $imageBase64;
+            }
+        }
         $doctors = [];
         $dentists = [];
         $therapists = [];
@@ -51,7 +61,7 @@ class ConsultantController extends Controller
    public function getConsultantDetails($id){
     $consultant = User::query()
             ->join('consultants', 'users.id', '=', 'consultants.user_id')
-            ->where('users.id',$id)
+            ->where('users.id', $id)
             ->get();
        return response()->json($consultant,200);
     }

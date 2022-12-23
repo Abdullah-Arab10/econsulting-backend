@@ -23,12 +23,20 @@ Route::post('/auth/register-consultant', [AuthController::class, 'registerAsCons
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/test', [AuthController::class, 'test']);
 Route::get('/auth/test2', [AuthController::class, 'test2']);
+
 //Consultant
-Route::get('/consultant/consultants-classified-list', [ConsultantController::class, 'getClassifiedConsultant']);
 Route::get('/consultant/consultants-list', [ConsultantController::class, 'getAllConsultants']);
+Route::get('consultant/consultant-details/{id}', [ConsultantController::class, 'getConsultantDetails']);
+Route::post('consultant/search', [ConsultantController::class, 'Search']);
+
 
 //Appointments
 Route::post('appointment/book', [AppointmentController::class, 'bookAppointment']);
+
+//admin
+Route::post('admin/add-cash', [AdminController::class, 'addMoneyToWallet']);
+
+//
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
