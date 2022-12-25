@@ -53,7 +53,8 @@ class AuthController extends Controller
             "password" => "required|string|min:6",
             "skill" => "required",
             "shiftStart" => "required|date_format:H:i",
-            "shiftEnd" => "required|date_format:H:i|after:shiftStart"
+            "shiftEnd" => "required|date_format:H:i|after:shiftStart",
+            "appointmentCost"=>"required|integer"
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -77,10 +78,12 @@ class AuthController extends Controller
             "image" => $imagePath,
             "phone" => $request->phone
         ]);
+
         $consultant = Consultant::create([
             "user_id" => $user->id,
             "skill" => $request->skill,
             "bio" => $request->bio,
+            "appointment_cost" => $request->appointmentCost,
             "shiftStart" => $formatterdshiftStart,
             "shiftEnd" => $formatterdshiftEnd
 
@@ -89,6 +92,7 @@ class AuthController extends Controller
         $user->skill = $consultant->skill;
         $user->shiftStart = $consultant->shiftStart;
         $user->shiftEnd = $consultant->shiftEnd;
+        $user->appointmentCost=$consultant->appointment_cost;
         $token = $user->createToken("Very Secret Strong Token")->plainTextToken;
         $respone = ["message" => "user has been added successfully", "user" => $user, "token" => $token];
         return response()->json($respone, 200);

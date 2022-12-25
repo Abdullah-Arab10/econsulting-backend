@@ -14,35 +14,39 @@ class AppointmentController extends Controller
     {
 
         $rules = [
-            "clientId" => "required",
-            "consultantId" => "required",
-            "appointmentDate" => "requried|date",
-            "appointmentStart" => "required|date_format:G:i:s",
-            "appointmentEnd" => "required|date_format:G:i:s|after:appointmentStart"
-
+            'clientId' => 'required',
+            'consultantId' => 'required',
+            'date' => 'required|date',
+            'appointmentStart' => 'required|date_format:G:i:s',
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
-        $consultant = User::query()->join('consultants', 'users.id', '=', 'consultants.user_id')->where('users.id', '=', $request->consultantId)->get();
-        $consultant = $consultant->toArray();
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+        $consultant = User::query()->join('consultants', 'users.id', '=', 'consultants.user_id')->where('users.id', '=', $request->consultantId)->first();
+
         $clientAppointments = Appointment::query()->where('client_id', '=', $request->clientId)->orWhere('consultant_id', '=', $request->clientId)->get();
         $clientAppointments = $clientAppointments->toArray();
         $consultantAppointments = Appointment::query()->where('consultant_id', '=', $request->consultantId)->get();
         $consultantAppointments = $consultantAppointments->toArray();
         $errorResponse = ["message" => "Consultant is not available!"];
-        if (count($consultant) == 0) {
-            return response()->json(["message" => "consultant is not found!"], 400);
+        if (!$consultant) {
+            return response()->json(["message" => "consultant is not found!","errorId"=>1], 400);
         }
-        $consultantInfo = $consultant[0];
+        $user=User::query()->where('id','=',$request->clientId)->first();
+        if (!$user) {
+            return response()->json(["message" => "User is not found!"], 400);
+        }
         $appointmentStartRequest = new Carbon($request->appointmentStart);
-        $appointmentEndRequest = Carbon::createFromFormat('G:i:s', $request->appointmentEnd);
-        $shiftStart = $consultantInfo['shiftStart'];
-        $shiftEnd = $consultantInfo['shiftEnd'];
+        $appointmentEndRequest = Carbon::createFromFormat('G:i:s', $request->appointmentStart)->addHour();
+        $shiftStart = $consultant['shiftStart'];
+        $shiftEnd = $consultant['shiftEnd'];
         $appointmentDateRequest = Carbon::createFromDate($request->date);
         if ($appointmentStartRequest->lessThan($shiftStart) || $appointmentStartRequest->greaterThanOrEqualTo($shiftEnd)) {
-            return response()->json([$errorResponse, "1"], 400);
+            return response()->json(["message" => "Consultant is not available!", "errorId"=>2], 400);
         }
         foreach ($consultantAppointments as $appointment) {
             $appointmentDate = Carbon::createFromDate($appointment['appointment_date']);
@@ -50,7 +54,7 @@ class AppointmentController extends Controller
             $appointmentEnd = Carbon::createFromFormat('G:i:s', $appointment['appointment_end']);
             if ($appointmentDate->eq($appointmentDateRequest)) {
                 if ($appointmentStartRequest->greaterThanOrEqualTo($appointmentStart) && $appointmentStartRequest->lessThanOrEqualTo($appointmentEnd)) {
-                    return response()->json([$errorResponse, '2'], 400);
+                    return response()->json(["message" => "Consultant is not available!", "errorId"=>2], 400);
                 }
             }
         }
@@ -60,10 +64,18 @@ class AppointmentController extends Controller
             $appointmentEnd = Carbon::createFromFormat('G:i:s', $appointment['appointment_end']);
             if ($appointmentDate->eq($appointmentDateRequest)) {
                 if ($appointmentStartRequest->greaterThanOrEqualTo($appointmentStart) && $appointmentStartRequest->lessThanOrEqualTo($appointmentEnd)) {
-                    return response()->json(["message" => "Sorry,you have another appointment in same time"], 400);
+                    return response()->json(["message" => "Sorry,you have another appointment in same time","errorId"=>3], 400);
                 }
             }
         }
+
+        if($consultant['appointment_cost']>$user['wallet']){
+            return response()->json(["message" => "Sorry,you don't have enough cash","errorId"=>4]);
+        }
+        $user->wallet=$user->wallet - $consultant['appointment_cost'];
+        $user->save();
+        $consultant->wallet=$consultant->wallet + $consultant['appointment_cost'];
+        $consultant->save();
         $appointment = Appointment::create([
             "client_id" => $request->clientId,
             "consultant_id" => $request->consultantId,

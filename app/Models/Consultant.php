@@ -18,12 +18,13 @@ class Consultant extends Model
         'skill',
         'bio',
         'shiftStart',
-        'shiftEnd'
+        'shiftEnd',
+        'appointment_cost'
     ];
     public function user(){
         return $this->belongsTo('App\User');
     }
-    
+
 
     public $timestamps = false;
 }
