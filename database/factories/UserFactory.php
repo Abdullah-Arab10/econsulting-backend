@@ -22,10 +22,11 @@ class UserFactory extends Factory
             'last_name' => fake()->lastName(),
             'email' => fake()->unique()->safeEmail(),
             'password' => fake()->password(), // password
-            'role' => 1,
+            'role' => rand(1,2),
             'address' => fake()->address(),
             'phone' => fake()->phoneNumber(),
-            'image' => 'E-Consulting\e_consulting_laravel\storage\app\images\boy.png'
+            'image' => 'E-Consulting\e_consulting_laravel\storage\app\public\images\boy.png',
+            'wallet'=>rand(10,1000)
         ];
     }
 

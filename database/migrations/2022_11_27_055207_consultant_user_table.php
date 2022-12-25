@@ -20,6 +20,7 @@ return new class extends Migration {
             $table->longText('bio')->nullable();
             $table->time('shiftStart');
             $table->time('shiftEnd');
+            $table->integer('appointment_cost')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
            // $table->timestamps();
         });
