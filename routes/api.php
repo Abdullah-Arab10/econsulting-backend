@@ -32,6 +32,7 @@ Route::post('consultant/search', [ConsultantController::class, 'Search']);
 
 //Appointments
 Route::post('appointment/book', [AppointmentController::class, 'bookAppointment']);
+Route::get('appointment/get-appointments/{id}',[AppointmentController::class,'getAppointments']);
 
 //admin
 Route::post('admin/add-cash', [AdminController::class, 'addMoneyToWallet']);
