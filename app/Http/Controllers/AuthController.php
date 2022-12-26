@@ -109,12 +109,14 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 400);
         }
         $user = User::where('email', $request->email)->first();
+
         if (!$user) {
             return response()->json(["message" => "User is not found"], 400);
         }
         if (!Hash::check($request->password, $user->password)) {
             return response()->json(["message" => "Password is not correct"], 400);
         }
+        dd($user[0]);
         $token = $user->createToken("Very Secret Strong Token")->plainTextToken;
         $respone = ["message" => "user has been added successfully", "user" => $user, "token" => $token];
         return response()->json($respone, 200);
@@ -123,9 +125,6 @@ class AuthController extends Controller
     {
 
         $storagePath = storage_path('app\public\images\boy.png');
-
-        // dd($storagePath);
-
         return response()->json(["data" => $storagePath]);
     }
     public function test(Request $request)
@@ -133,11 +132,7 @@ class AuthController extends Controller
         if ($request->hasFile('image')) {
             $storagePath = $request->file('image')->store('public/images');
         }
-
         $storagePath = substr($storagePath, strpos($storagePath, "images/"));
-
-        // dd($storagePath);
-
         return response()->json(["data" => $storagePath]);
     }
 }

@@ -21,7 +21,7 @@ class AppointmentFactory extends Factory
         return [
             'client_id' => rand(11,20),
             'consultant_id'=>rand(1,10),
-            'appointment_date'=>fake()->date(),
+            'appointment_date'=>Carbon::createFromDate(2022,1,1)->addDays(rand(1,350))->format('y-m-d'),
             'appointment_start' => $startDate->addHours(rand(0, 3))->format('H:i'),
             'appointment_end' => $startDate->addHours(rand(4, 10))->format(('H:i'))
         ];
