@@ -62,5 +62,9 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Rating');
     }
+    public function favorite()
+    {
+        return $this->hasMany('App\Favorite');
+    }
     public $timestamps = false;
 }

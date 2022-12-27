@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ConsultantController extends Controller
 {
+   
     //
     public function getAllConsultants()
     {
