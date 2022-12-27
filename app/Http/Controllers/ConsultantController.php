@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 
 class ConsultantController extends Controller
 {
+   
     //
     public function getAllConsultants()
     {

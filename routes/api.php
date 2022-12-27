@@ -7,6 +7,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConsultantController;
 use App\Http\Controllers\SearchUser;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\FavoriteController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -39,6 +41,10 @@ Route::post('admin/add-cash', [AdminController::class, 'addMoneyToWallet']);
 
 //Rating
 Route::post('rate', [ConsultantController::class, 'rating']);
+
+//favorite
+Route::get('getFavorite/{id}', [FavoriteController::class, 'getFavorite']);
+Route::post('favorite', [FavoriteController::class, 'addFavorite']);
 //
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

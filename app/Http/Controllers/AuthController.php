@@ -9,9 +9,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\FavoriteController;
+use Dflydev\DotAccessData\Data;
 
 class AuthController extends Controller
 {
+    // use FavoriteController;
+
     public function register(Request $request)
     {
         $rules = [
@@ -54,7 +58,7 @@ class AuthController extends Controller
             "skill" => "required",
             "shiftStart" => "required|date_format:H:i",
             "shiftEnd" => "required|date_format:H:i|after:shiftStart",
-            "appointmentCost"=>"required|integer"
+            "appointmentCost" => "required|integer"
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -92,13 +96,13 @@ class AuthController extends Controller
         $user->skill = $consultant->skill;
         $user->shiftStart = $consultant->shiftStart;
         $user->shiftEnd = $consultant->shiftEnd;
-        $user->appointmentCost=$consultant->appointment_cost;
+        $user->appointmentCost = $consultant->appointment_cost;
         $token = $user->createToken("Very Secret Strong Token")->plainTextToken;
         $respone = ["message" => "user has been added successfully", "user" => $user, "token" => $token];
         return response()->json($respone, 200);
     }
 
-  public function login(Request $request)
+    public function login(Request $request)
     {
         $rules = [
             "email" => "required|email",
@@ -109,12 +113,12 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 400);
         }
         $user = User::where('email', $request->email)->first();
-        if($user['role']==1){
-        $consultant=Consultant::where('user_id','=',$user['id'])->first();
-           $user->bio = $consultant->bio;
-        $user->skill = $consultant->skill;
-        $user->shiftStart = $consultant->shiftStart;
-        $user->shiftEnd = $consultant->shiftEnd;
+        if ($user['role'] == 1) {
+            $consultant = Consultant::where('user_id', '=', $user['id'])->first();
+            $user->bio = $consultant->bio;
+            $user->skill = $consultant->skill;
+            $user->shiftStart = $consultant->shiftStart;
+            $user->shiftEnd = $consultant->shiftEnd;
         }
 
         if (!$user) {
@@ -123,15 +127,26 @@ class AuthController extends Controller
         if (!Hash::check($request->password, $user->password)) {
             return response()->json(["message" => "Password is not correct"], 400);
         }
+
+
+        $userId = $user->id;
+        $Favoritelist = app('App\Http\Controllers\FavoriteController')->getFavoriteId($userId);
+
+
+
         $token = $user->createToken("Very Secret Strong Token")->plainTextToken;
-        $respone = ["message" => "user has been added successfully", "user" => $user, "token" => $token];
+        $respone = ["message" => "user has been added successfully", "user" => $user, "token" => $token, "favoriteList" => $Favoritelist];
+
+
+
         return response()->json($respone, 200);
     }
     public function test2()
     {
 
-        $storagePath = storage_path('app\public\images\boy.png');
-        return response()->json(["data" => $storagePath]);
+        $Favoritelist = app('App\Http\Controllers\FavoriteController')->getFavorite1(3);
+
+        return $Favoritelist;
     }
     public function test(Request $request)
     {
