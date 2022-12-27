@@ -28,22 +28,18 @@ Route::get('/auth/test2', [AuthController::class, 'test2']);
 Route::get('/consultant/consultants-list', [ConsultantController::class, 'getAllConsultants']);
 Route::get('consultant/consultant-details/{id}', [ConsultantController::class, 'getConsultantDetails']);
 Route::post('consultant/search', [ConsultantController::class, 'Search']);
-
+Route::get('consultant-details/{id}', [ConsultantController::class, 'getConsultantDetails']);
 
 //Appointments
 Route::post('appointment/book', [AppointmentController::class, 'bookAppointment']);
-Route::get('appointment/get-appointments/{id}',[AppointmentController::class,'getAppointments']);
+Route::get('appointment/get-appointments/{id}', [AppointmentController::class, 'getAppointments']);
 
 //admin
 Route::post('admin/add-cash', [AdminController::class, 'addMoneyToWallet']);
 
+//Rating
+Route::post('rate', [ConsultantController::class, 'rating']);
 //
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::get('consultant-details/{id}' , [ConsultantController::class , 'getConsultantDetails']);
-Route::post('admin/add-cash',[AdminController::class,'addMoneyToWallet']);
-Route::post('search',[ConsultantController::class,'Search']);
-
-Route::post('rate/{id}/{id1}',[ConsultantController::class,'rating']);
-

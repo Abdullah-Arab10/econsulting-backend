@@ -98,7 +98,7 @@ class AuthController extends Controller
         return response()->json($respone, 200);
     }
 
-    public function login(Request $request)
+  public function login(Request $request)
     {
         $rules = [
             "email" => "required|email",
@@ -109,6 +109,13 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 400);
         }
         $user = User::where('email', $request->email)->first();
+        if($user['role']==1){
+        $consultant=Consultant::where('user_id','=',$user['id'])->first();
+           $user->bio = $consultant->bio;
+        $user->skill = $consultant->skill;
+        $user->shiftStart = $consultant->shiftStart;
+        $user->shiftEnd = $consultant->shiftEnd;
+        }
 
         if (!$user) {
             return response()->json(["message" => "User is not found"], 400);
@@ -116,7 +123,6 @@ class AuthController extends Controller
         if (!Hash::check($request->password, $user->password)) {
             return response()->json(["message" => "Password is not correct"], 400);
         }
-        dd($user[0]);
         $token = $user->createToken("Very Secret Strong Token")->plainTextToken;
         $respone = ["message" => "user has been added successfully", "user" => $user, "token" => $token];
         return response()->json($respone, 200);

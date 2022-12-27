@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\TextUI\XmlConfiguration\Constant;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class ConsultantController extends Controller
 {
@@ -62,9 +63,13 @@ class ConsultantController extends Controller
 
     public function Search(Request $request)
     {
-        $request->validate([
-            "username" => "required|min:3"
-        ]);
+        $rules = [
+            'username' => 'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
         $search = $request->username;
         $users = User::query()->join('consultants', 'users.id', '=', 'consultants.user_id')
             ->where(function ($qs) use ($search) {
@@ -76,12 +81,20 @@ class ConsultantController extends Controller
         return response()->json($users, 200);
     }
 
-    public function rating(Request $request, $clintId, $consultantId)
+    public function rating(Request $request)
     {
 
-        $request->validate([
-            'rate' => 'required'
-        ]);
+        $rules = [
+            'rate' => 'required',
+            'consultantId' => 'required',
+            'clientId' => 'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+        $clintId = $request->clientId;
+        $consultantId = $request->consultantId;
         $user = Rating::where(function ($q) use ($clintId, $consultantId) {
             $q->where('client_id', $clintId)
                 ->where('consultant_id', $consultantId);
@@ -101,7 +114,7 @@ class ConsultantController extends Controller
         $avgrating = Consultant::where('consultants.id', $consultantId)->first();
         $avgrating->AvgRating =  $rate;
         $avgrating->save();
-        return response()->json(200);
+        return response()->json(["message" => "Rating added successfully"], 200);
     }
 
 

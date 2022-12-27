@@ -26,7 +26,7 @@ class UserFactory extends Factory
             'role' => rand(1,2),
             'address' => fake()->address(),
             'phone' => fake()->phoneNumber(),
-            'image' => 'E-Consulting\e_consulting_laravel\storage\app\public\images\boy.png',
+            'image' => 'images/a16sCj8VbPZn1sSXwROQxHbfRWBGzhgiRIznZJj4.png',
             'wallet'=>rand(10,1000)
         ];
     }
