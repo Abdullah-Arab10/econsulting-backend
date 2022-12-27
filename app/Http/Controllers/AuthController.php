@@ -9,9 +9,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\FavoriteController;
+use Dflydev\DotAccessData\Data;
 
 class AuthController extends Controller
 {
+   // use FavoriteController;
+    
     public function register(Request $request)
     {
         $rules = [
@@ -116,16 +120,26 @@ class AuthController extends Controller
         if (!Hash::check($request->password, $user->password)) {
             return response()->json(["message" => "Password is not correct"], 400);
         }
-        dd($user[0]);
+
+
+        $userId =$user->id;
+        $Favoritelist=app( 'App\Http\Controllers\FavoriteController')->getFavoriteId($userId);
+        
+
+
         $token = $user->createToken("Very Secret Strong Token")->plainTextToken;
-        $respone = ["message" => "user has been added successfully", "user" => $user, "token" => $token];
+        $respone = ["message" => "user has been added successfully", "user" => $user, "token" => $token,"favoriteList"=>$Favoritelist];
+
+
+        
         return response()->json($respone, 200);
     }
     public function test2()
     {
 
-        $storagePath = storage_path('app\public\images\boy.png');
-        return response()->json(["data" => $storagePath]);
+        $Favoritelist=app( 'App\Http\Controllers\FavoriteController')->getFavorite1(3);
+        
+        return $Favoritelist;
     }
     public function test(Request $request)
     {
