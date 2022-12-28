@@ -23,11 +23,11 @@ class UserFactory extends Factory
             'last_name' => fake()->lastName(),
             'email' => fake()->unique()->safeEmail(),
             'password' => Hash::make('1234567'), // password
-            'role' => rand(1,2),
+            'role' => 1,
             'address' => fake()->address(),
             'phone' => fake()->phoneNumber(),
             'image' => 'images/a16sCj8VbPZn1sSXwROQxHbfRWBGzhgiRIznZJj4.png',
-            'wallet'=>rand(10,1000)
+            'wallet' => rand(10, 1000)
         ];
     }
 
@@ -38,7 +38,7 @@ class UserFactory extends Factory
      */
     public function unverified()
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
     }
