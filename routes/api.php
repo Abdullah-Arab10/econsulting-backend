@@ -30,24 +30,22 @@ Route::get('/auth/test2', [AuthController::class, 'test2']);
 Route::get('/consultant/consultants-list', [ConsultantController::class, 'getAllConsultants']);
 Route::get('consultant/consultant-details/{id}', [ConsultantController::class, 'getConsultantDetails']);
 Route::post('consultant/search', [ConsultantController::class, 'Search']);
-
+Route::get('consultant-details/{id}', [ConsultantController::class, 'getConsultantDetails']);
 
 //Appointments
 Route::post('appointment/book', [AppointmentController::class, 'bookAppointment']);
-Route::get('appointment/get-appointments/{id}',[AppointmentController::class,'getAppointments']);
+Route::get('appointment/get-appointments/{id}', [AppointmentController::class, 'getAppointments']);
 
 //admin
 Route::post('admin/add-cash', [AdminController::class, 'addMoneyToWallet']);
 
+//Rating
+Route::post('rate', [ConsultantController::class, 'rating']);
+
+//favorite
+Route::get('getFavorite/{id}', [FavoriteController::class, 'getFavorite']);
+Route::post('favorite', [FavoriteController::class, 'addFavorite']);
 //
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-//rating
-Route::post('rate/{id}/{id1}',[ConsultantController::class,'rating']);
-
-
-//favorite
-Route::get('getFavorite/{id}',[FavoriteController::class,'getFavorite']);
-Route::post('favorite',[FavoriteController::class, 'addFavorite']);
- 
