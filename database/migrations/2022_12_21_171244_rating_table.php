@@ -13,13 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-         Schema::create('ratings', function (Blueprint $table) {
+        Schema::create('ratings', function (Blueprint $table) {
             $table->id();
             $table->double('rate')->nullable();
             $table->unsignedBigInteger('client_id');
             $table->unsignedBigInteger('consultant_id');
             $table->foreign('client_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('consultant_id')->references('id')->on('consultants')->onDelete('cascade');
+            $table->foreign('consultant_id')->references('user_id')->on('consultants')->onDelete('cascade');
         });
     }
 
