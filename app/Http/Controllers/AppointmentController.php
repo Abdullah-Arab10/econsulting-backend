@@ -18,7 +18,7 @@ class AppointmentController extends Controller
             'clientId' => 'required',
             'consultantId' => 'required',
             'date' => 'required|date',
-            'appointmentStart' => 'required|date_format:G:i',
+            'appointmentStart' => 'required|date_format:H:i',
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -39,10 +39,10 @@ class AppointmentController extends Controller
         }
         $user = User::query()->where('id', '=', $request->clientId)->first();
         if (!$user) {
-            return response()->json(["message" => "User is not found!","errorId" => 1], 400);
+            return response()->json(["message" => "User is not found!", "errorId" => 1], 400);
         }
         $appointmentStartRequest = new Carbon($request->appointmentStart);
-        $appointmentEndRequest = Carbon::createFromFormat('G:i', $request->appointmentStart)->addHour();
+        $appointmentEndRequest = Carbon::createFromFormat('H:i', $request->appointmentStart)->addHour();
         $shiftStart = $consultant['shiftStart'];
         $shiftEnd = $consultant['shiftEnd'];
         $appointmentDateRequest = Carbon::createFromDate($request->date);
@@ -71,7 +71,7 @@ class AppointmentController extends Controller
         }
 
         if ($consultant['appointment_cost'] > $user['wallet']) {
-            return response()->json(["message" => "Sorry,you don't have enough cash", "errorId" => 4],400);
+            return response()->json(["message" => "Sorry,you don't have enough cash", "errorId" => 4], 400);
         }
         $user->wallet = $user->wallet - $consultant['appointment_cost'];
         $user->save();
