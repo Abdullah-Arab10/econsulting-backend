@@ -15,11 +15,12 @@ return new class extends Migration {
         Schema::create('consultants', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->double('rating')->nullable();
+            $table->double('avgRating')->nullable();
             $table->integer('skill');
             $table->longText('bio')->nullable();
             $table->time('shiftStart');
             $table->time('shiftEnd');
+            $table->integer('appointment_cost')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
            // $table->timestamps();
         });

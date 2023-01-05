@@ -9,9 +9,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\FavoriteController;
+use Dflydev\DotAccessData\Data;
 
 class AuthController extends Controller
 {
+    // use FavoriteController;
+
     public function register(Request $request)
     {
         $rules = [
@@ -24,8 +28,10 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
+        $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('images');
+            $imagePath = $request->file('image')->store('public/images');
+            $imagePath = substr($imagePath, strpos($imagePath, "images/"));
         };
         $user = User::create([
             "first_name" => $request->firstName,
@@ -33,7 +39,7 @@ class AuthController extends Controller
             "email" => $request->email,
             "password" => Hash::make($request->password),
             "address" => $request->address,
-            "wallet"=>0,
+            "wallet" => 0,
             "image" => $imagePath,
             "role" => 2
         ]);
@@ -44,7 +50,6 @@ class AuthController extends Controller
 
     public function registerAsConsultant(Request $request)
     {
-
         $rules = [
             "firstName" => "required|string|min:3",
             "lastName" => "required|string|min:3",
@@ -52,15 +57,19 @@ class AuthController extends Controller
             "password" => "required|string|min:6",
             "skill" => "required",
             "shiftStart" => "required|date_format:H:i",
-            "shiftEnd" => "required|date_format:H:i|after:shiftStart"
+            "shiftEnd" => "required|date_format:H:i|after:shiftStart",
+            "appointmentCost" => "required|integer"
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
-       if ($request->hasFile('image')) {
-          $imagePath = $request->file('image')->store('images');
-       };
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('public/images');
+            $imagePath = substr($imagePath, strpos($imagePath, "images/"));
+        };
+
         $formatterdshiftStart = Carbon::createFromFormat('H:i', $request->shiftStart)->format('H:i:s');
         $formatterdshiftEnd = Carbon::createFromFormat('H:i', $request->shiftEnd)->format('H:i:s');
         $user = User::create([
@@ -70,23 +79,24 @@ class AuthController extends Controller
             "password" => Hash::make($request->password),
             "role" => 1,
             "address" => $request->address,
-           "image" => $imagePath,
+            "image" => $imagePath,
             "phone" => $request->phone
         ]);
+
         $consultant = Consultant::create([
             "user_id" => $user->id,
             "skill" => $request->skill,
             "bio" => $request->bio,
-           
+            "appointment_cost" => $request->appointmentCost,
             "shiftStart" => $formatterdshiftStart,
             "shiftEnd" => $formatterdshiftEnd
 
         ]);
         $user->bio = $consultant->bio;
         $user->skill = $consultant->skill;
-        
         $user->shiftStart = $consultant->shiftStart;
         $user->shiftEnd = $consultant->shiftEnd;
+        $user->appointmentCost = $consultant->appointment_cost;
         $token = $user->createToken("Very Secret Strong Token")->plainTextToken;
         $respone = ["message" => "user has been added successfully", "user" => $user, "token" => $token];
         return response()->json($respone, 200);
@@ -103,14 +113,47 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 400);
         }
         $user = User::where('email', $request->email)->first();
+        if ($user['role'] == 1) {
+            $consultant = Consultant::where('user_id', '=', $user['id'])->first();
+            $user->bio = $consultant->bio;
+            $user->skill = $consultant->skill;
+            $user->shiftStart = $consultant->shiftStart;
+            $user->shiftEnd = $consultant->shiftEnd;
+        }
+
         if (!$user) {
             return response()->json(["message" => "User is not found"], 400);
         }
         if (!Hash::check($request->password, $user->password)) {
             return response()->json(["message" => "Password is not correct"], 400);
         }
+
+
+        $userId = $user->id;
+        $Favoritelist = app('App\Http\Controllers\FavoriteController')->getFavoriteId($userId);
+
+
+
         $token = $user->createToken("Very Secret Strong Token")->plainTextToken;
-        $respone = ["message" => "user has been added successfully", "user" => $user, "token" => $token];
+        $respone = ["message" => "user has been added successfully", "user" => $user, "token" => $token, "favoriteList" => $Favoritelist];
+
+
+
         return response()->json($respone, 200);
+    }
+    public function test2()
+    {
+
+        $Favoritelist = app('App\Http\Controllers\FavoriteController')->getFavorite1(3);
+
+        return $Favoritelist;
+    }
+    public function test(Request $request)
+    {
+        if ($request->hasFile('image')) {
+            $storagePath = $request->file('image')->store('public/images');
+        }
+        $storagePath = substr($storagePath, strpos($storagePath, "images/"));
+        return response()->json(["data" => $storagePath]);
     }
 }

@@ -54,7 +54,17 @@ class User extends Authenticatable
     {
         return $this->hasOne('App\Consultant');
     }
-
-    
+    public function appointments()
+    {
+        return $this->hasMany('App\Appointment');
+    }
+    public function rating()
+    {
+        return $this->hasMany('App\Rating');
+    }
+    public function favorite()
+    {
+        return $this->hasMany('App\Favorite');
+    }
     public $timestamps = false;
 }

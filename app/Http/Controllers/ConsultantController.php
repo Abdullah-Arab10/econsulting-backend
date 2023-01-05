@@ -2,14 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Consultant;
+use App\Models\Rating;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use PHPUnit\TextUI\XmlConfiguration\Constant;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+
+use function PHPUnit\Framework\isEmpty;
 
 class ConsultantController extends Controller
 {
+   
     //
-    public function getAllConsultant()
+    public function getAllConsultants()
     {
         $consultants = User::query()
             ->join('consultants', 'users.id', '=', 'consultants.user_id')
@@ -37,18 +45,96 @@ class ConsultantController extends Controller
             "lawyers" => $lawyers,
             "economists" => $economists,
             "software_engineers" => $softwareEngineers,
-            "civil_engineers" => $civilEngineers];
-        return response()->json($consultantsList, 200);
+            "civil_engineers" => $civilEngineers
+        ];
+        return response()->json(["data" => $consultantsList], 200);
     }
 
-   public function getConsultantDetails($id){
+
+
+    public function getConsultantDetails($id)
+    {
         $consultant = User::query()
             ->join('consultants', 'users.id', '=', 'consultants.user_id')
-            ->where('users.id',$id)
+            ->where('users.id', $id)
             ->get();
+        return response()->json(["data" => $consultant], 200);
+    }
 
-        return response()->json($consultant,200);
 
 
+
+    public function Search(Request $request)
+    {
+        $rules = [
+            'username' => 'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+        $search = $request->username;
+        $users = User::query()->join('consultants', 'users.id', '=', 'consultants.user_id')
+            ->where(function ($qs) use ($search) {
+                $qs ->Where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhereRaw(
+                        "concat(first_name, ' ', last_name) like '%" . $search . "%' "
+                    )
+                    ->orWhereRaw(
+                        "concat(first_name, last_name) like '%" . $search . "%' "
+                    ); 
+            })->get();
+
+            if($users->isEmpty()){
+                return response()->json([
+                    'message'=>'user not found'
+                ],404);
+            }
+        return response()->json($users, 200);
+    }
+
+    public function rating(Request $request)
+    {
+
+        $rules = [
+            'rate' => 'required',
+            'consultantId' => 'required',
+            'clientId' => 'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+        $clintId = $request->clientId;
+        $consultantId = $request->consultantId;
+        $user = Rating::where(function ($q) use ($clintId, $consultantId) {
+            $q->where('client_id', $clintId)
+                ->where('consultant_id', $consultantId);
+        })->first();
+
+        if ($user) {
+            $user->rate = $request->rate;
+            $user->save();
+        } else {
+            $rate = Rating::create([
+                "rate" => $request->rate,
+                "client_id" => $clintId,
+                "consultant_id" => $consultantId
+            ]);
+        }
+        $rate = $this->AvgRating($consultantId);
+        $avgrating = Consultant::where('consultants.id', $consultantId)->first();
+        $avgrating->AvgRating =  $rate;
+        $avgrating->save();
+        return response()->json(["message" => "Rating added successfully"], 200);
+    }
+
+
+    public function AvgRating($id)
+    {
+        $avg = Rating::query()->where('ratings.consultant_id', $id)->avg('ratings.rate');
+        $formatted_number = round($avg, 2);
+        return $formatted_number;
     }
 }

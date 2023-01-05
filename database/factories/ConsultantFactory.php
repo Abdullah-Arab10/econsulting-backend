@@ -22,11 +22,12 @@ class ConsultantFactory extends Factory
 
         return [
             'user_id' => User::factory(1)->create()->first(),
-            'rating' => rand(0, 5),
+            'avgRating' => rand(0, 5),
             'skill' => rand(0, 6),
             'bio' => fake()->paragraph(),
             'shiftStart' => $startDate->addHours(rand(0, 3))->format('H:i'),
-            'shiftEnd' => $startDate->addHours(rand(4, 10))->format(('H:i'))
+            'shiftEnd' => $startDate->addHours(rand(4, 10))->format(('H:i')),
+            'appointment_cost'=>rand(10,1000)
         ];
     }
 }
