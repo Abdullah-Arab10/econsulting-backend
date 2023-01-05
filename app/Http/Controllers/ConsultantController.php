@@ -11,6 +11,8 @@ use PHPUnit\TextUI\XmlConfiguration\Constant;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
+use function PHPUnit\Framework\isEmpty;
+
 class ConsultantController extends Controller
 {
    
@@ -74,11 +76,21 @@ class ConsultantController extends Controller
         $search = $request->username;
         $users = User::query()->join('consultants', 'users.id', '=', 'consultants.user_id')
             ->where(function ($qs) use ($search) {
-                $qs->orWhere('first_name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%");
+                $qs ->Where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhereRaw(
+                        "concat(first_name, ' ', last_name) like '%" . $search . "%' "
+                    )
+                    ->orWhereRaw(
+                        "concat(first_name, last_name) like '%" . $search . "%' "
+                    ); 
             })->get();
 
-
+            if($users->isEmpty()){
+                return response()->json([
+                    'message'=>'user not found'
+                ],404);
+            }
         return response()->json($users, 200);
     }
 
