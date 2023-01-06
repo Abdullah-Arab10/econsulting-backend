@@ -22,6 +22,7 @@ class ConsultantController extends Controller
         $consultants = User::query()
             ->join('consultants', 'users.id', '=', 'consultants.user_id')
             ->get();
+        $Favoritelist = app('App\Http\Controllers\FavoriteController')->getFavoriteId($id);
         $doctors = [];
         $dentists = [];
         $therapists = [];
@@ -30,7 +31,12 @@ class ConsultantController extends Controller
         $civilEngineers = [];
         $softwareEngineers = [];
         foreach ($consultants as $consultant) {
+            $consultant->isFavorite = false;
+            if (in_array($consultant['id'], $Favoritelist)) {
+                $consultant->isFavorite = true;
+            }
             if ($consultant->id != $id) {
+
                 if ($consultant->skill == 0) array_push($doctors, $consultant);
                 if ($consultant->skill == 1) array_push($dentists, $consultant);
                 if ($consultant->skill == 2) array_push($therapists, $consultant);

@@ -131,9 +131,6 @@ class AuthController extends Controller
 
         $userId = $user->id;
         $Favoritelist = app('App\Http\Controllers\FavoriteController')->getFavoriteId($userId);
-
-
-
         $token = $user->createToken("Very Secret Strong Token")->plainTextToken;
         $respone = ["message" => "user has been added successfully", "user" => $user, "token" => $token, "favoriteList" => $Favoritelist];
 
