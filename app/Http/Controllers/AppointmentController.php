@@ -54,7 +54,7 @@ class AppointmentController extends Controller
             $appointmentStart = Carbon::createFromFormat('G:i:s', $appointment['appointment_start']);
             $appointmentEnd = Carbon::createFromFormat('G:i:s', $appointment['appointment_end']);
             if ($appointmentDate->eq($appointmentDateRequest)) {
-                if ($appointmentStartRequest->greaterThanOrEqualTo($appointmentStart) && $appointmentStartRequest->lessThanOrEqualTo($appointmentEnd)) {
+                if ($appointmentStartRequest->greaterThanOrEqualTo($appointmentStart) && $appointmentStartRequest->lessThan($appointmentEnd)) {
                     return response()->json(["message" => "Consultant is not available!", "errorId" => 2], 400);
                 }
             }
@@ -64,7 +64,7 @@ class AppointmentController extends Controller
             $appointmentStart = Carbon::createFromFormat('G:i:s', $appointment['appointment_start']);
             $appointmentEnd = Carbon::createFromFormat('G:i:s', $appointment['appointment_end']);
             if ($appointmentDate->eq($appointmentDateRequest)) {
-                if ($appointmentStartRequest->greaterThanOrEqualTo($appointmentStart) && $appointmentStartRequest->lessThanOrEqualTo($appointmentEnd)) {
+                if ($appointmentStartRequest->greaterThanOrEqualTo($appointmentStart) && $appointmentStartRequest->lessThan($appointmentEnd)) {
                     return response()->json(["message" => "Sorry,you have another appointment in same time", "errorId" => 3], 400);
                 }
             }
