@@ -35,7 +35,7 @@ class ConsultantController extends Controller
             if (in_array($consultant['id'], $Favoritelist)) {
                 $consultant->isFavorite = true;
             }
-            if ($consultant->id != $id) {
+            if ($consultant->user_id != $id) {
 
                 if ($consultant->skill == 0) array_push($doctors, $consultant);
                 if ($consultant->skill == 1) array_push($dentists, $consultant);
