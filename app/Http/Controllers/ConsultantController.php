@@ -30,7 +30,7 @@ class ConsultantController extends Controller
         $civilEngineers = [];
         $softwareEngineers = [];
         foreach ($consultants as $consultant) {
-            if ($consultant->id != $id) {
+            if ($consultant->user_id != $id) {
                 if ($consultant->skill == 0) array_push($doctors, $consultant);
                 if ($consultant->skill == 1) array_push($dentists, $consultant);
                 if ($consultant->skill == 2) array_push($therapists, $consultant);
