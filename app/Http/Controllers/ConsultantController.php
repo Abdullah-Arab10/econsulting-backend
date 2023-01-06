@@ -15,9 +15,9 @@ use function PHPUnit\Framework\isEmpty;
 
 class ConsultantController extends Controller
 {
-   
+
     //
-    public function getAllConsultants()
+    public function getAllConsultants($id)
     {
         $consultants = User::query()
             ->join('consultants', 'users.id', '=', 'consultants.user_id')
@@ -30,13 +30,15 @@ class ConsultantController extends Controller
         $civilEngineers = [];
         $softwareEngineers = [];
         foreach ($consultants as $consultant) {
-            if ($consultant->skill == 0) array_push($doctors, $consultant);
-            if ($consultant->skill == 1) array_push($dentists, $consultant);
-            if ($consultant->skill == 2) array_push($therapists, $consultant);
-            if ($consultant->skill == 3) array_push($lawyers, $consultant);
-            if ($consultant->skill == 4) array_push($economists, $consultant);
-            if ($consultant->skill == 5) array_push($softwareEngineers, $consultant);
-            if ($consultant->skill == 6) array_push($civilEngineers, $consultant);
+            if ($consultant->id != $id) {
+                if ($consultant->skill == 0) array_push($doctors, $consultant);
+                if ($consultant->skill == 1) array_push($dentists, $consultant);
+                if ($consultant->skill == 2) array_push($therapists, $consultant);
+                if ($consultant->skill == 3) array_push($lawyers, $consultant);
+                if ($consultant->skill == 4) array_push($economists, $consultant);
+                if ($consultant->skill == 5) array_push($softwareEngineers, $consultant);
+                if ($consultant->skill == 6) array_push($civilEngineers, $consultant);
+            }
         }
         $consultantsList = [
             "doctors" => $doctors,
@@ -76,21 +78,21 @@ class ConsultantController extends Controller
         $search = $request->username;
         $users = User::query()->join('consultants', 'users.id', '=', 'consultants.user_id')
             ->where(function ($qs) use ($search) {
-                $qs ->Where('first_name', 'like', "%{$search}%")
+                $qs->Where('first_name', 'like', "%{$search}%")
                     ->orWhere('last_name', 'like', "%{$search}%")
                     ->orWhereRaw(
                         "concat(first_name, ' ', last_name) like '%" . $search . "%' "
                     )
                     ->orWhereRaw(
                         "concat(first_name, last_name) like '%" . $search . "%' "
-                    ); 
+                    );
             })->get();
 
-            if($users->isEmpty()){
-                return response()->json([
-                    'message'=>'user not found'
-                ],404);
-            }
+        if ($users->isEmpty()) {
+            return response()->json([
+                'message' => 'user not found'
+            ], 404);
+        }
         return response()->json($users, 200);
     }
 
