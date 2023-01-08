@@ -24,11 +24,7 @@ class AppointmentController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
         $consultant = User::query()->join('consultants', 'users.id', '=', 'consultants.user_id')->where('users.id', '=', $request->consultantId)->first();
-
         $clientAppointments = Appointment::query()->where('client_id', '=', $request->clientId)->orWhere('consultant_id', '=', $request->clientId)->get();
         $clientAppointments = $clientAppointments->toArray();
         $consultantAppointments = Appointment::query()->where('consultant_id', '=', $request->consultantId)->get();
@@ -49,16 +45,6 @@ class AppointmentController extends Controller
         if ($appointmentStartRequest->lessThan($shiftStart) || $appointmentStartRequest->greaterThanOrEqualTo($shiftEnd)) {
             return response()->json(["message" => "Consultant is not available!", "errorId" => 2], 400);
         }
-        foreach ($consultantAppointments as $appointment) {
-            $appointmentDate = Carbon::createFromDate($appointment['appointment_date']);
-            $appointmentStart = Carbon::createFromFormat('G:i:s', $appointment['appointment_start']);
-            $appointmentEnd = Carbon::createFromFormat('G:i:s', $appointment['appointment_end']);
-            if ($appointmentDate->eq($appointmentDateRequest)) {
-                if ($appointmentStartRequest->greaterThanOrEqualTo($appointmentStart) && $appointmentStartRequest->lessThan($appointmentEnd)) {
-                    return response()->json(["message" => "Consultant is not available!", "errorId" => 2], 400);
-                }
-            }
-        }
         foreach ($clientAppointments as $appointment) {
             $appointmentDate = Carbon::createFromDate($appointment['appointment_date']);
             $appointmentStart = Carbon::createFromFormat('G:i:s', $appointment['appointment_start']);
@@ -69,14 +55,24 @@ class AppointmentController extends Controller
                 }
             }
         }
-
-        if ($consultant['appointment_cost'] > $user['wallet']) {
+        foreach ($consultantAppointments as $appointment) {
+            $appointmentDate = Carbon::createFromDate($appointment['appointment_date']);
+            $appointmentStart = Carbon::createFromFormat('G:i:s', $appointment['appointment_start']);
+            $appointmentEnd = Carbon::createFromFormat('G:i:s', $appointment['appointment_end']);
+            if ($appointmentDate->eq($appointmentDateRequest)) {
+                if ($appointmentStartRequest->greaterThanOrEqualTo($appointmentStart) && $appointmentStartRequest->lessThan($appointmentEnd)) {
+                    return response()->json(["message" => "Consultant is not available!", "errorId" => 2], 400);
+                }
+            }
+        }
+        if ($consultant['appointment_cost'] > $user['wallet'] && !$request->isVacation) {
             return response()->json(["message" => "Sorry,you don't have enough cash", "errorId" => 4], 400);
         }
         $user->wallet = $user->wallet - $consultant['appointment_cost'];
         $user->save();
         $consultant->wallet = $consultant->wallet + $consultant['appointment_cost'];
         $consultant->save();
+
         $appointment = Appointment::create([
             "client_id" => $request->clientId,
             "consultant_id" => $request->consultantId,
@@ -84,10 +80,65 @@ class AppointmentController extends Controller
             "appointment_start" => $appointmentStartRequest,
             "appointment_end" => $appointmentEndRequest
         ]);
+
         return response()->json([
             "message" => "appointment created successfully",
             "data" => $appointment
         ], 200);
+    }
+    public function createVacations(Request $request)
+    {
+        $rules = [
+            'consultantId' => 'required',
+            'date' => 'required|date',
+            'vacationStart' => 'required|date_format:H:i',
+            'vacationEnd' => 'required|date_format:H:i',
+            'repeat' => 'required|integer'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+        $consultant = User::query()->join('consultants', 'users.id', '=', 'consultants.user_id')->where('users.id', '=', $request->consultantId)->first();
+        $consultantAppointments = Appointment::query()->where('consultant_id', '=', $request->consultantId)->get();
+        $consultantAppointments = $consultantAppointments->toArray();
+        if (!$consultant) {
+            return response()->json(["message" => "consultant is not found!", "errorId" => 0], 400);
+        }
+        $vacationStartRequest = Carbon::createFromFormat('H:i', $request->vacationStart);
+        $vacationEndRequest = Carbon::createFromFormat('H:i', $request->vacationEnd);
+        $vacationDateRequest = Carbon::createFromDate($request->date);
+        $shiftStart = $consultant['shiftStart'];
+        $shiftEnd = $consultant['shiftEnd'];
+        if ($vacationStartRequest->lessThan($shiftStart) || $vacationEndRequest->greaterThanOrEqualTo($shiftEnd)) {
+            return response()->json(["message" => "please add vacation in your work shifts !", "errorId" => 1], 400);
+        }
+        $vacations = [];
+        foreach ($consultantAppointments as $appointment) {
+            $appointmentDate = Carbon::createFromDate($appointment['appointment_date']);
+            $appointmentStart = Carbon::createFromFormat('G:i:s', $appointment['appointment_start']);
+            $appointmentEnd = Carbon::createFromFormat('G:i:s', $appointment['appointment_end']);
+            if ($appointmentDate->eq($vacationDateRequest)) {
+                if ($vacationStartRequest->greaterThanOrEqualTo($appointmentStart) && $vacationStartRequest->lessThan($appointmentEnd)) {
+                    if ($appointment['client_id'] == $appointment['consultant_id']) {
+                        return response()->json(["message" => "Sorry , you have upcoming vacation in the same time!", "errorId" => 2], 400);
+                    } else {
+                        return response()->json(["message" => "Sorry , you have upcoming appointments!", "errorId" => 3], 400);
+                    }
+                }
+            }
+        }
+        for ($i = 0; $i <= $request->repeat; $i++) {
+            $vacation = Appointment::create([
+                "client_id" => $request->consultantId,
+                "consultant_id" => $request->consultantId,
+                "appointment_date" => $vacationDateRequest->addDays($i * 7),
+                "appointment_start" => $vacationStartRequest,
+                "appointment_end" => $vacationEndRequest
+            ]);
+            array_push($vacations, $vacation);
+        }
+        return response()->json(["data" => $vacations, "message" => "vacations added successfully"], 200);
     }
     public function getAppointments($id)
     {
