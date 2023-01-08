@@ -34,6 +34,7 @@ Route::get('consultant-details/{id}', [ConsultantController::class, 'getConsulta
 
 //Appointments
 Route::post('appointment/book', [AppointmentController::class, 'bookAppointment']);
+Route::post('appointment/vacation', [AppointmentController::class, 'createVacations']);
 Route::get('appointment/get-appointments/{id}', [AppointmentController::class, 'getAppointments']);
 
 //admin
