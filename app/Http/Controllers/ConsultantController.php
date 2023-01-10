@@ -135,7 +135,7 @@ class ConsultantController extends Controller
             ]);
         }
         $rate = $this->AvgRating($consultantId);
-        $avgrating = Consultant::where('consultants.id', $consultantId)->first();
+        $avgrating = Consultant::where('consultants.user_id', $consultantId)->first();
         $avgrating->AvgRating =  $rate;
         $avgrating->save();
         return response()->json(["message" => "Rating added successfully"], 200);
